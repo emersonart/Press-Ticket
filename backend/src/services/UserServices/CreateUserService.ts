@@ -11,6 +11,7 @@ interface Request {
   queueIds?: number[];
   profile?: string;
   whatsappId?: number;
+  companyId?: number;
 }
 
 interface Response {
@@ -18,6 +19,7 @@ interface Response {
   name: string;
   id: number;
   profile: string;
+  companyId: number;
 }
 
 const CreateUserService = async ({
@@ -26,7 +28,8 @@ const CreateUserService = async ({
   name,
   queueIds = [],
   profile = "admin",
-  whatsappId
+  whatsappId,
+  companyId
 }: Request): Promise<Response> => {
   const schema = Yup.object().shape({
     name: Yup.string().required().min(2),
@@ -48,7 +51,7 @@ const CreateUserService = async ({
   });
 
   try {
-    await schema.validate({ email, password, name });
+    await schema.validate({ email, password, name, companyId });
   } catch (err) {
     throw new AppError(err.message);
   }
@@ -59,9 +62,10 @@ const CreateUserService = async ({
       password,
       name,
       profile,
-      whatsappId: whatsappId ? whatsappId : null
+      whatsappId: whatsappId || null,
+      companyId
     },
-    { include: ["queues", "whatsapp"] }
+    { include: ["queues", "whatsapp", "companies"] }
   );
 
   await user.$set("queues", queueIds);

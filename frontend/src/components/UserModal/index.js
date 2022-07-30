@@ -156,6 +156,7 @@ const UserModal = ({ open, onClose, userId }) => {
 						}, 400);
 					}}
 				>
+					{console.log(user)}
 					{({ touched, errors, isSubmitting }) => (
 						<Form>
 							<DialogContent dividers>
