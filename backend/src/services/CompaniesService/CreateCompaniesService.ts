@@ -7,6 +7,7 @@ import AssociateCompaniesUser from "./AssociateCompaniesUser";
 interface Request {
   name: string;
   userIds?: number[];
+  email: string;
   phone?: string;
   document?: string;
   status?: string;
@@ -23,7 +24,7 @@ const CreateCompaniesService = async ({
   userIds = [],
   phone,
   document,
-  limitConnections = false
+  limitConnections = 3
 }: Request): Promise<Response> => {
   const schema = Yup.object().shape({
     document: Yup.string()

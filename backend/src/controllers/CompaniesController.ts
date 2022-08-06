@@ -18,58 +18,55 @@ type IndexQuery = {
 export const index = async (req: Request, res: Response): Promise<Response> => {
   const { searchParam, pageNumber } = req.query as IndexQuery;
 
-  const { users, count, hasMore } = await ListCompaniesService({
+  const { companies, count, hasMore } = await ListCompaniesService({
     searchParam,
     pageNumber
   });
 
-  return res.json({ users, count, hasMore });
+  return res.json({ companies, count, hasMore });
 };
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
-  const { users } = await ListCompaniesService({});
+  const { companies } = await ListCompaniesService({});
 
-  if (users.length >= Number(process.env.USER_LIMIT)) {
+  if (companies.length >= Number(process.env.USER_LIMIT)) {
     throw new AppError("ERR_USER_CREATION_COUNT", 403);
   }
 
-  const { email, password, name, profile, queueIds, whatsappId, companyId } =
-    req.body;
+  const { email, name, phone, document, limitConnections } = req.body;
 
   if (
     req.url === "/signup" &&
-    (await CheckSettingsHelper("userCreation")) === "disabled"
+    (await CheckSettingsHelper("companyCreation")) === "disabled"
   ) {
-    throw new AppError("ERR_USER_CREATION_DISABLED", 403);
-  } else if (req.url !== "/signup" && req.user.profile !== "admin") {
+    throw new AppError("ERR_COMPANY_CREATION_DISABLED", 403);
+  } else if (req.url !== "/signup" && req.company.profile !== "admin") {
     throw new AppError("ERR_NO_PERMISSION", 403);
   }
 
-  const user = await CreateCompaniesService({
+  const company = await CreateCompaniesService({
     email,
-    password,
     name,
-    profile,
-    queueIds,
-    whatsappId,
-    companyId
+    phone,
+    document,
+    limitConnections
   });
 
   const io = getIO();
-  io.emit("user", {
+  io.emit("company", {
     action: "create",
-    user
+    company
   });
 
-  return res.status(200).json(user);
+  return res.status(200).json(company);
 };
 
 export const show = async (req: Request, res: Response): Promise<Response> => {
   const { companyId } = req.params;
 
-  const user = await ShowCompaniesService(companyId);
+  const company = await ShowCompaniesService(companyId);
 
-  return res.status(200).json(user);
+  return res.status(200).json(company);
 };
 
 export const update = async (
@@ -79,23 +76,23 @@ export const update = async (
   const { companyId } = req.params;
 
   const newCompanyId = companyId.toString();
-  const sessionCompanyId = req.user.id.toString();
+  const sessionCompanyId = req.company.id.toString();
 
-  if (req.user.profile !== "admin" && sessionCompanyId !== newCompanyId) {
+  if (req.company.profile !== "admin" && sessionCompanyId !== newCompanyId) {
     throw new AppError("ERR_NO_PERMISSION", 403);
   }
 
   const companyData = req.body;
 
-  const user = await UpdateCompaniesService({ companyData, companyId });
+  const company = await UpdateCompaniesService({ companyData, companyId });
 
   const io = getIO();
-  io.emit("user", {
+  io.emit("company", {
     action: "update",
-    user
+    company
   });
 
-  return res.status(200).json(user);
+  return res.status(200).json(company);
 };
 
 export const remove = async (
@@ -104,14 +101,14 @@ export const remove = async (
 ): Promise<Response> => {
   const { companyId } = req.params;
 
-  if (req.user.profile !== "admin") {
+  if (req.company.profile !== "admin") {
     throw new AppError("ERR_NO_PERMISSION", 403);
   }
 
   await DeleteCompaniesService(companyId);
 
   const io = getIO();
-  io.emit("user", {
+  io.emit("company", {
     action: "delete",
     companyId
   });
