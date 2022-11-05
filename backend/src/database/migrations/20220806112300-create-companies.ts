@@ -38,19 +38,16 @@ module.exports = {
       },
       limitConnections: {
         type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 1
       },
       createdAt: {
         type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: literal("CURRENT_TIMESTAMP(0)")
+        allowNull: false
       },
       updatedAt: {
         type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: literal("ON update CURRENT_TIMESTAMP(0)")
+        allowNull: false
       }
     });
   },

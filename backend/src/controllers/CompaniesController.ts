@@ -33,14 +33,21 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     throw new AppError("ERR_USER_CREATION_COUNT", 403);
   }
 
-  const { email, name, phone, document, limitConnections } = req.body;
+  const {
+    email,
+    name,
+    phone,
+    document,
+    limitConnections,
+    company: companyReq
+  } = req.body;
 
   if (
     req.url === "/signup" &&
     (await CheckSettingsHelper("companyCreation")) === "disabled"
   ) {
     throw new AppError("ERR_COMPANY_CREATION_DISABLED", 403);
-  } else if (req.url !== "/signup" && req.company.profile !== "admin") {
+  } else if (req.url !== "/signup" && req.user.profile !== "admin") {
     throw new AppError("ERR_NO_PERMISSION", 403);
   }
 
@@ -76,15 +83,18 @@ export const update = async (
   const { companyId } = req.params;
 
   const newCompanyId = companyId.toString();
-  const sessionCompanyId = req.company.id.toString();
+  const sessionCompanyId = newCompanyId.toString();
 
-  if (req.company.profile !== "admin" && sessionCompanyId !== newCompanyId) {
+  if (req.user.profile !== "admin" && sessionCompanyId !== newCompanyId) {
     throw new AppError("ERR_NO_PERMISSION", 403);
   }
 
   const companyData = req.body;
 
-  const company = await UpdateCompaniesService({ companyData, companyId });
+  const company = await UpdateCompaniesService({
+    companiesData: companyData,
+    companyId
+  });
 
   const io = getIO();
   io.emit("company", {
@@ -101,7 +111,7 @@ export const remove = async (
 ): Promise<Response> => {
   const { companyId } = req.params;
 
-  if (req.company.profile !== "admin") {
+  if (req.user.profile !== "admin") {
     throw new AppError("ERR_NO_PERMISSION", 403);
   }
 

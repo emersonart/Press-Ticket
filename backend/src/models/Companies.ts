@@ -34,7 +34,6 @@ class Companies extends Model<Companies> {
   email: string;
 
   @Column
-  @Unique
   document: string;
 
   @Column

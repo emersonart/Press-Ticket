@@ -9,6 +9,7 @@ import {
 } from "sequelize-typescript";
 import Queue from "./Queue";
 import Whatsapp from "./Whatsapp";
+import Companies from "./Companies";
 
 @Table
 class WhatsappQueue extends Model<WhatsappQueue> {
@@ -19,6 +20,10 @@ class WhatsappQueue extends Model<WhatsappQueue> {
   @ForeignKey(() => Queue)
   @Column
   queueId: number;
+
+  @ForeignKey(() => Companies)
+  @Column
+  companyId: number;
 
   @CreatedAt
   createdAt: Date;

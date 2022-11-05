@@ -26,7 +26,7 @@ interface Response {
   company: Companies;
 }
 
-const UpdateComapniesService = async ({
+const UpdateCompaniesService = async ({
   companiesData,
   companyId
 }: Request): Promise<Response> => {
@@ -70,4 +70,4 @@ const UpdateComapniesService = async ({
   return { company };
 };
 
-export default UpdateComapniesService;
+export default UpdateCompaniesService;
